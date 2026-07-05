@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Message Box</title>
+<style>
+  :root {
+    --ink: #1c2321;
+    --paper: #f6f5f1;
+    --line: #d8d5cc;
+    --accent: #2f6f5e;
+    --warn: #b8433a;
+    --muted: #8a887f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--paper);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--ink);
+    padding: 24px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 36px;
+    width: 100%;
+    max-width: 460px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  }
+
+  h1 {
+    font-size: 20px;
+    margin: 0 0 2px;
+  }
+
+  .max-label {
+    margin: 0 0 18px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    resize: vertical;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.5;
+    transition: border-color 0.15s ease;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  textarea.limit-close {
+    border-color: #c98a2f;
+  }
+
+  textarea.limit-reached {
+    border-color: var(--warn);
+  }
+
+  .counter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+
+  .counter {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .counter.close {
+    color: #c98a2f;
+    font-weight: 600;
+  }
+
+  .counter.full {
+    color: var(--warn);
+    font-weight: 600;
+  }
+
+  .warning {
+    min-height: 18px;
+    font-size: 12.5px;
+    color: var(--warn);
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Write a message</h1>
+  <p class="max-label">200 characters max</p>
+
+  <textarea id="messageBox" maxlength="200" placeholder="Type your message here..."></textarea>
+
+  <div class="counter-row">
+    <span class="counter" id="counterText">0/200 characters</span>
+  </div>
+  <div class="warning" id="warningMsg"></div>
+</div>
+
+<script>
+  const MAX_CHARS = 200;
+  const CLOSE_THRESHOLD = 20; // show "close to limit" styling in the last 20 chars
+
+  const textarea = document.getElementById('messageBox');
+  const counterText = document.getElementById('counterText');
+  const warningMsg = document.getElementById('warningMsg');
+
+  textarea.addEventListener('input', function () {
+    // Hard stop: never allow more than MAX_CHARS, even from paste
+    if (textarea.value.length > MAX_CHARS) {
+      textarea.value = textarea.value.slice(0, MAX_CHARS);
+    }
+
+    const used = textarea.value.length;
+    const remaining = MAX_CHARS - used;
+
+    counterText.textContent = `${used}/${MAX_CHARS} characters`;
+    counterText.classList.remove('close', 'full');
+    textarea.classList.remove('limit-close', 'limit-reached');
+
+    if (remaining === 0) {
+      counterText.classList.add('full');
+      textarea.classList.add('limit-reached');
+      warningMsg.textContent = "You've reached the 200 character limit.";
+    } else if (remaining <= CLOSE_THRESHOLD) {
+      counterText.classList.add('close');
+      textarea.classList.add('limit-close');
+      warningMsg.textContent = `Only ${remaining} character${remaining === 1 ? '' : 's'} left.`;
+    } else {
+      warningMsg.textContent = '';
+    }
+  });
+</script>
+
+</body>
+</html>
